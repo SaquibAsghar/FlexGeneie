@@ -14,6 +14,10 @@ export const BrowserRouter = createBrowserRouter([
         path: "/about",
         element: <div>About Page</div>,
       },
+      {
+        path: "/onboarding",
+        element: <App />,
+      },
     ],
   },
 ]);

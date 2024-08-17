@@ -1,4 +1,18 @@
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+
 function App() {
+  const { pathname } = useLocation();
+  const onBoarding = pathname.match(/onboarding/gi);
+  console.log(onBoarding);
+  let showSignupForm;
+  if (!onBoarding || onBoarding !== "onboarding") {
+    showSignupForm = false;
+  }
+  if (Array.isArray(onBoarding) && onBoarding[0] === "onboarding") {
+    showSignupForm = true;
+  }
+  console.log(showSignupForm);
   return (
     <div>
       <header className="text-xl text-[#d6d6d6]"></header>
@@ -16,7 +30,9 @@ function App() {
         <p className="text-white">Welcome to the FlixGenie</p>
         <div className="flex flex-col items-center">
           <div className="bg-gray-500 text-white">
-            <span className="text-white">Sign In</span>
+            <span className="text-white">
+              {showSignupForm ? "Sign Up" : "Sign In"}
+            </span>
             <form action="" method="post">
               <div>
                 <input
@@ -26,6 +42,16 @@ function App() {
                   className="border-2 border-gray-300 p-2 focus:outline-none w-full"
                 />
               </div>
+              {showSignupForm && (
+                <div>
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Email Address"
+                    className="border-2 border-gray-300 p-2 focus:outline-none w-full"
+                  />
+                </div>
+              )}
               <div>
                 <input
                   type="password"
@@ -39,7 +65,7 @@ function App() {
                   type="submit"
                   className="bg-red-700 text-white p-2 mt-4 rounded w-full rounded-lg"
                 >
-                  Sign In
+                  {showSignupForm ? "Sign Up" : "Sign In"}
                 </button>
                 <span className="block">
                   <input type="checkbox" name="rememberUser" id="rememberUse" />
@@ -51,7 +77,11 @@ function App() {
                   </a>
                 </span>
                 <div>
-                  <a href="#">New to Netflix? Sign Up Now</a>
+                  {showSignupForm ? (
+                    <Link to="/">Already exist? Sign In Now</Link>
+                  ) : (
+                    <Link to="/onboarding">New to Netflix? Sign Up Now</Link>
+                  )}
                 </div>
               </div>
             </form>
