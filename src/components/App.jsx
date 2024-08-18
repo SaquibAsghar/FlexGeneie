@@ -1,8 +1,18 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { fbAuth } from "../config/firebase/firebaae.config";
+import {
+  createUserWithEmailAndPassword,
+  signInWithCredential,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 
 function App() {
   const { pathname } = useLocation();
+  const userNameRef = useRef(null);
+  const userEmailRef = useRef(null);
+  const userPasswordRef = useRef(null);
+
   const onBoarding = pathname.match(/onboarding/gi);
   console.log(onBoarding);
   let showSignupForm;
@@ -13,6 +23,52 @@ function App() {
     showSignupForm = true;
   }
   console.log(showSignupForm);
+  const onCredentialSubmit = (e) => {
+    e.preventDefault();
+    const userObj = {};
+    console.log("clicked");
+    const { value: userEmailVal, name: userEmail } = userEmailRef.current;
+    const { value: userPasswordVal, name: userPassword } =
+      userPasswordRef.current;
+    userObj[userEmail] = userEmailVal;
+    userObj[userPassword] = userPasswordVal;
+    if (userNameRef.current) {
+      const { value: userUserNameVal, name: userName } = userNameRef.current;
+      userObj[userName] = userUserNameVal;
+    }
+    console.log(userObj);
+    if (!showSignupForm) {
+      signInWithEmailAndPassword(
+        fbAuth,
+        userObj[userEmail],
+        userObj[userPassword]
+      )
+        .then((userCred) => console.log("userCred=> ", userCred))
+        .catch((err) => {
+          const errorCode = err.code;
+          const errorMessage = err.message;
+          console.log({
+            errorCode,
+            errorMessage,
+          });
+        });
+      return;
+    }
+    createUserWithEmailAndPassword(
+      fbAuth,
+      userObj[userEmail],
+      userObj[userPassword]
+    )
+      .then((userCredentials) => console.log("userCred => ", userCredentials))
+      .catch((err) => {
+        const errorCode = err.code;
+        const errorMessage = err.message;
+        console.log({
+          errorCode,
+          errorMessage,
+        });
+      });
+  };
   return (
     <div>
       <header className="text-xl text-[#d6d6d6]"></header>
@@ -32,37 +88,40 @@ function App() {
             <span className="text-white">
               {showSignupForm ? "Sign Up" : "Sign In"}
             </span>
-            <form action="" method="post">
-              <div>
-                <input
-                  type="text"
-                  name="username"
-                  placeholder="Username"
-                  className="border-2 border-gray-300 p-2 focus:outline-none w-full"
-                />
-              </div>
+            <form onSubmit={onCredentialSubmit} method="post">
               {showSignupForm && (
                 <div>
                   <input
-                    type="email"
-                    name="email"
-                    placeholder="Email Address"
-                    className="border-2 border-gray-300 p-2 focus:outline-none w-full"
+                    ref={userNameRef}
+                    type="text"
+                    name="username"
+                    placeholder="Username"
+                    className="border-2 border-gray-300 p-2 focus:outline-none w-full text-black"
                   />
                 </div>
               )}
               <div>
                 <input
+                  ref={userEmailRef}
+                  type="email"
+                  name="email"
+                  placeholder="Email Address"
+                  className="border-2 border-gray-300 p-2 focus:outline-none w-full text-black"
+                />
+              </div>
+              <div>
+                <input
+                  ref={userPasswordRef}
                   type="password"
                   name="password"
                   placeholder="Password"
-                  className="border-2 border-gray-300 p-2 mt-4 focus:outline-none w-full"
+                  className="border-2 border-gray-300 p-2 mt-4 focus:outline-none w-full text-black"
                 />
               </div>
               <div>
                 <button
                   type="submit"
-                  className="bg-red-700 text-white p-2 mt-4 rounded w-full rounded-lg"
+                  className="bg-red-700 text-white p-2 mt-4 rounded-sm w-full"
                 >
                   {showSignupForm ? "Sign Up" : "Sign In"}
                 </button>
